@@ -1,8 +1,8 @@
 type Ciudad = String
 type Duracion = Float
+type Duraciones = [Duracion]
 type Vuelo = (Ciudad, Ciudad, Duracion)
 type AgenciaDeViajes = [Vuelo]
-
 type Tramos = [(Ciudad, Ciudad)]
 type Ciudades = [Ciudad]
 
@@ -151,10 +151,55 @@ sePuedeLlegar agencia origen distino = elem distino (distinosDirectos ++ (conseg
 
 -- ejercicio 6 --
 
-conseguirDuraciones :: AgenciaDeViajes -> Ciudad -> Ciudad -> [Int]
-conseguirDuraciones [] _ _ = 0
-conseguirDuraciones (ciudad:ciudades) origen destino
-    | origen == (obtCiudPrim ciudad) && (destino == obtCiudSeg ciudad) = obtDur ciudad
+-- t = la agencia de viajes, pero sin ir avanzando sobre la misma con la recursividad, queda estatica
+-- Primera guarda : Si existe un vuelo directo, agrega la duracion del mismo a la lista (la lista sera el resultado)
+-- Segunda guarda : Si la 1ra ciudad pertenece al conjunto de ciudades destino del origen, agrega la duracion de ambos vuelos
+-- EJ 2da Guard. -> Buenos Aires --5-> Cordoba && Cordoba --4-> Santa Fe
+--               -> ciudades destino de Buenos aires = ["Cordoba"]
+--               -> Quiero hallar la duracion de Bs -> Santa Fe
+--               -> Cuando analize el vuelo Cordoba -> Santa Fe, cordoba pertenece a ciudades destino de bs? Si, entonces la 
+--               ->  - duracion que agrega es 4 + 5 (toma ambos vuelos)
+--               -> Una vez obtenidas todas las duraciones para ir de A->B, damos como resultado al elemento minimo de la lista.
+
+buscarDuracion :: AgenciaDeViajes -> Ciudad -> Ciudad -> Duracion
+buscarDuracion [] _ _ = -1
+buscarDuracion (vuelo:vuelos) origen destino 
+    | vuelo == (origen, destino, (obtDur vuelo)) = (obtDur vuelo)
+    | otherwise = buscarDuracion vuelos origen destino
+
+
+conseguirEscalasCompletasAux :: AgenciaDeViajes -> AgenciaDeViajes -> Ciudad -> Ciudad -> Duraciones
+conseguirEscalasCompletasAux [] _ _ _ = []
+conseguirEscalasCompletasAux (vuelo:vuelos) t origen destino 
+    | ((c1 == origen) && (c2 == destino)) = (obtDur vuelo):(conseguirEscalasCompletasAux vuelos t origen destino)
+    | ((elem (c1) (destinosDelOrigen)) && (c2 == destino)) = ((obtDur vuelo) + buscarDuracion t origen c1):(conseguirEscalasCompletasAux vuelos t origen destino)
+    | otherwise = (conseguirEscalasCompletasAux vuelos t origen destino)
+    where c1 = obtCiudPrim vuelo
+          c2 = obtCiudSeg vuelo
+          destinosDelOrigen = conseguirDestinos t origen
+
+
+conseguirEscalasCompletas :: AgenciaDeViajes -> Ciudad -> Ciudad -> Duraciones
+conseguirEscalasCompletas t o d = conseguirEscalasCompletasAux t t o d
+
+
+minimaDuracionAux :: Duraciones -> Float -> Duracion
+minimaDuracionAux [] n = n
+minimaDuracionAux (tiempo:tiempos) n
+    | n == 0 || tiempo < n = minimaDuracionAux tiempos tiempo
+    | otherwise = minimaDuracionAux tiempos n
+    
+
+minimaDuracion :: Duraciones -> Duracion
+minimaDuracion x = minimaDuracionAux x 0
+
+
+duracionDelCaminoMasRapido :: AgenciaDeViajes -> Ciudad -> Ciudad -> Duracion
+duracionDelCaminoMasRapido agencia origen destino = minimaDuracion (conseguirEscalasCompletas agencia origen destino)
+
+
+
+
 
 
 -- ejercicio 7--
