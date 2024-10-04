@@ -8,6 +8,8 @@ type Vuelo = (Ciudad, Ciudad, Duracion)
 type AgenciaDeViajes = [Vuelo]
 type Tramos = [(Ciudad, Ciudad)]
 type Ciudades = [Ciudad]
+type Visitado = Ciudades
+type Turista = (AgenciaDeViajes, Visitado)
 
 obtDur :: Vuelo -> Duracion
 obtDur (_, _, duracion) = duracion
@@ -70,22 +72,6 @@ vuelosValidos vuelos = (todosVuelosValidos vuelos) && (not (hayRepetidos vuelos)
 
 
 
-
-
--- vuelosPrueba :: AgenciaDeViajes
--- vuelosPrueba = [
---     ("Madrid", "Barcelona", 1.5),  -- Válido
---     ("Buenos Aires", "Córdoba", 2.0),  -- Válido
---     ("Madrid", "Barcelona", 1.5),  -- Repetido (invalid)
---     ("Barcelona", "Barcelona", 1.0),  -- Ciudad1 = Ciudad2 (invalid)
---     ("Lima", "Santiago", -2.0),  -- Tiempo <= 0 (invalid)
---     ("Madrid", "Valencia", 2.0),  -- Válido
---     ("Córdoba", "Buenos Aires", 3.0),  -- Válido
---     ("Madrid", "Valencia", 1.5),  -- Diferente duración para el mismo par de ciudades (invalid)
---     ("Córdoba", "Santiago", 1.0)  -- Válido
--- ]
-
---[("Madrid", "Barcelona", 1.5), ("Buenos Aires", "Córdoba", 2.0), ("Madrid", "Barcelona", 2)]
 
 
 
@@ -206,90 +192,90 @@ duracionDelCaminoMasRapido agencia origen destino = minimaDuracion (conseguirEsc
 
 -- ejercicio 7--
 
--- pertenece :: (Eq t) => t -> [t] -> Bool
--- pertenece _ [] = False
--- pertenece e (x:xs) = (e == x) || (pertenece e xs)
+pertenece :: (Eq t) => t -> [t] -> Bool
+pertenece _ [] = False
+pertenece e (x:xs) = (e == x) || (pertenece e xs)
 
 
--- agregarVueloAAgencia :: Vuelo -> AgenciaDeViajes -> AgenciaDeViajes
--- agregarVueloAAgencia vuelo agencia = (vuelo:agencia)
+agregarVueloAAgencia :: Vuelo -> AgenciaDeViajes -> AgenciaDeViajes
+agregarVueloAAgencia vuelo agencia = (vuelo:agencia)
 
 
--- eliminarCiudadDeAgencia :: Ciudad -> AgenciaDeViajes -> AgenciaDeViajes -- elimina todod los viajes que tienen esta ciudad
--- eliminarCiudadDeAgencia _ [] = []
--- eliminarCiudadDeAgencia ciudad (viaje:agencia)
---     | (ciudad == obtCiudPrim viaje) || (ciudad == obtCiudSeg viaje) = eliminarCiudadDeAgencia ciudad agencia
---     | otherwise = viaje:(eliminarCiudadDeAgencia ciudad agencia)
+eliminarCiudadDeAgencia :: Ciudad -> AgenciaDeViajes -> AgenciaDeViajes -- elimina todod los viajes que tienen esta ciudad
+eliminarCiudadDeAgencia _ [] = []
+eliminarCiudadDeAgencia ciudad (viaje:agencia)
+    | (ciudad == obtCiudPrim viaje) || (ciudad == obtCiudSeg viaje) = eliminarCiudadDeAgencia ciudad agencia
+    | otherwise = viaje:(eliminarCiudadDeAgencia ciudad agencia)
 
--- ciudadesAnteriores :: Visitado -> Visitado -- visitado tiene por lo menos 2 ciudades ya que visitamos el origin y la ciudad a donde viajamos
--- ciudadesAnteriores (_:ciudades) = ciudades
+ciudadesAnteriores :: Visitado -> Visitado -- visitado tiene por lo menos 2 ciudades ya que visitamos el origin y la ciudad a donde viajamos
+ciudadesAnteriores (_:ciudades) = ciudades
 
--- ciudadDeEstadia :: Visitado -> Ciudad
--- ciudadDeEstadia (ciudad_de_estadia:ciudades) = ciudad_de_estadia
-
-
--- viajar :: Turista -> Turista -- viaja a la primera ciudad que aparece en la lista conseguir destinos
--- viajar (agencia, visitado)
--- -- callejos sin salida(estamos seguros que objetivo no es callejon sin salida)
---     | (conseguirDestinos agencia (ciudadDeEstadia visitado) == []) = (eliminarCiudadDeAgencia (ciudadDeEstadia visitado) agencia, ciudadesAnteriores visitado) -- dar un paso atras y eliminar callejos sin salida
---     | otherwise = (agencia, (ciudad_de_estadia:visitado))
---     where ciudad_de_estadia = ciudadDeEstadia (conseguirDestinos agencia (ciudadDeEstadia visitado)) -- basicamente eligimos la primera ciudad en la lista de destinos
+ciudadDeEstadia :: Visitado -> Ciudad
+ciudadDeEstadia (ciudad_de_estadia:ciudades) = ciudad_de_estadia
 
 
-
--- -- bucle es cuando Visitado es semejante a lo siguiente : [A, b1, b2,..., bn, A, T,..., origen]
--- -- A siempre esta en el inicio de la lista(es decir en la ciudad de estadia)
--- -- entonces tenemos que convertirlo en: [origen] conectando origen con todos los destinos
--- -- de todos los bi que habia -> (origen, distino bi, tiempo)
--- -- A es inicio de bucle
-
--- hayBucle :: Visitado -> Bool
--- hayBucle visitado = pertenece (ciudadDeEstadia visitado) (ciudadesAnteriores visitado)
-
--- hayBucleConObjetivo :: Ciudad -> Visitado -> Bool
--- hayBucleConObjetivo objetivo visitado = (hayBucle visitado) && (ciudadDeEstadia visitado == objetivo)
-
--- obtBucle :: Bool -> Ciudad -> Visitado -> Ciudades -- requiere: existe bucle
--- obtBucle es_inicio inicio_de_bucle (ciudad:ciudades)
---     | (es_inicio == True) = ciudad:(obtBucle False inicio_de_bucle (ciudades))
---     | (ciudad == inicio_de_bucle) = [inicio_de_bucle]
---     | otherwise = ciudad:(obtBucle False inicio_de_bucle ciudades)
+viajar :: Turista -> Turista -- viaja a la primera ciudad que aparece en la lista conseguir destinos
+viajar (agencia, visitado)
+-- callejos sin salida(estamos seguros que objetivo no es callejon sin salida)
+    | (conseguirDestinos agencia (ciudadDeEstadia visitado) == []) = (eliminarCiudadDeAgencia (ciudadDeEstadia visitado) agencia, ciudadesAnteriores visitado) -- dar un paso atras y eliminar callejos sin salida
+    | otherwise = (agencia, (ciudad_de_estadia:visitado))
+    where ciudad_de_estadia = ciudadDeEstadia (conseguirDestinos agencia (ciudadDeEstadia visitado)) -- basicamente eligimos la primera ciudad en la lista de destinos
 
 
--- obtTodosDestinosDeBucle :: Ciudades -> AgenciaDeViajes -> Ciudades -- todas las ciudades a las cuales se puede llegar en un paso desde cualquer ciudad de bucle
--- obtTodosDestinosDeBucle bucle agencia = eliminarRepetidos (conseguirDestinosMultiples agencia bucle)
+
+-- bucle es cuando Visitado es semejante a lo siguiente : [A, b1, b2,..., bn, A, T,..., origen]
+-- A siempre esta en el inicio de la lista(es decir en la ciudad de estadia)
+-- entonces tenemos que convertirlo en: [origen] conectando origen con todos los destinos
+-- de todos los bi que habia -> (origen, distino bi, tiempo)
+-- A es inicio de bucle
+
+hayBucle :: Visitado -> Bool
+hayBucle visitado = pertenece (ciudadDeEstadia visitado) (ciudadesAnteriores visitado)
+
+hayBucleConObjetivo :: Ciudad -> Visitado -> Bool
+hayBucleConObjetivo objetivo visitado = (hayBucle visitado) && (ciudadDeEstadia visitado == objetivo)
+
+obtBucle :: Bool -> Ciudad -> Visitado -> Ciudades -- requiere: existe bucle
+obtBucle es_inicio inicio_de_bucle (ciudad:ciudades)
+    | (es_inicio == True) = ciudad:(obtBucle False inicio_de_bucle (ciudades))
+    | (ciudad == inicio_de_bucle) = [inicio_de_bucle]
+    | otherwise = ciudad:(obtBucle False inicio_de_bucle ciudades)
 
 
--- eliminarBucleDeAgencia :: Ciudades -> AgenciaDeViajes -> AgenciaDeViajes
--- eliminarBucleDeAgencia [] agencia = agencia
--- eliminarBucleDeAgencia (elemento_de_bucle:resto_de_bucle) agencia = eliminarBucleDeAgencia resto_de_bucle (eliminarCiudadDeAgencia elemento_de_bucle agencia)
+obtTodosDestinosDeBucle :: Ciudades -> AgenciaDeViajes -> Ciudades -- todas las ciudades a las cuales se puede llegar en un paso desde cualquer ciudad de bucle
+obtTodosDestinosDeBucle bucle agencia = eliminarRepetidos (conseguirDestinosMultiples agencia bucle)
 
 
--- conectarCiudadConDestinos :: Ciudad -> Ciudades -> AgenciaDeViajes -> AgenciaDeViajes
--- conectarCiudadConDestinos origen [] agencia = agencia
--- conectarCiudadConDestinos origen (destino:destinos) agencia
---     | (elem (origen, destino) (obtenerTramos agencia)) || (origen == destino) == True = conectarCiudadConDestinos origen destinos agencia
---     | otherwise = conectarCiudadConDestinos origen destinos (nueva_agencia)
---     where nueva_agencia = agregarVueloAAgencia (origen, destino, 1) agencia
+eliminarBucleDeAgencia :: Ciudades -> AgenciaDeViajes -> AgenciaDeViajes
+eliminarBucleDeAgencia [] agencia = agencia
+eliminarBucleDeAgencia (elemento_de_bucle:resto_de_bucle) agencia = eliminarBucleDeAgencia resto_de_bucle (eliminarCiudadDeAgencia elemento_de_bucle agencia)
 
 
--- eliminarBucleAux :: Ciudad -> Turista -> Ciudades -> Turista
--- eliminarBucleAux origen (agencia, visitado) bucle = (nueva_agencia, [origen]) -- [objetivo] volvemos al origen
---     where nueva_agencia = (conectarCiudadConDestinos (origen) (obtTodosDestinosDeBucle bucle agencia) (eliminarBucleDeAgencia bucle agencia))
+conectarCiudadConDestinos :: Ciudad -> Ciudades -> AgenciaDeViajes -> AgenciaDeViajes
+conectarCiudadConDestinos origen [] agencia = agencia
+conectarCiudadConDestinos origen (destino:destinos) agencia
+    | (elem (origen, destino) (obtenerTramos agencia)) || (origen == destino) == True = conectarCiudadConDestinos origen destinos agencia
+    | otherwise = conectarCiudadConDestinos origen destinos (nueva_agencia)
+    where nueva_agencia = agregarVueloAAgencia (origen, destino, 1) agencia
 
 
--- eliminarBucle :: Ciudad -> Turista -> Turista
--- eliminarBucle origen (agencia, visitado)
---     | (hayBucle visitado) == True = eliminarBucleAux origen (agencia, visitado) (obtBucle True (ciudadDeEstadia visitado) visitado)
---     | otherwise = (agencia, visitado)
+eliminarBucleAux :: Ciudad -> Turista -> Ciudades -> Turista
+eliminarBucleAux origen (agencia, visitado) bucle = (nueva_agencia, [origen]) -- [objetivo] volvemos al origen
+    where nueva_agencia = (conectarCiudadConDestinos (origen) (obtTodosDestinosDeBucle bucle agencia) (eliminarBucleDeAgencia bucle agencia))
 
 
--- buscarOrigen :: Turista -> Ciudad -> Bool
--- buscarOrigen (agencia, visitado) objetivo
---     | elem objetivo (conseguirDestinos agencia (ciudadDeEstadia visitado)) == True = True
---     | (conseguirDestinos agencia objetivo) == [] = False
---     | otherwise = buscarOrigen (eliminarBucle objetivo (viajar (agencia, visitado))) objetivo
+eliminarBucle :: Ciudad -> Turista -> Turista
+eliminarBucle origen (agencia, visitado)
+    | (hayBucle visitado) == True = eliminarBucleAux origen (agencia, visitado) (obtBucle True (ciudadDeEstadia visitado) visitado)
+    | otherwise = (agencia, visitado)
 
--- puedoVolverAOrigen :: AgenciaDeViajes -> Ciudad -> Bool
--- puedoVolverAOrigen agencia origen = buscarOrigen (agencia, [origen]) origen
+
+buscarOrigen :: Turista -> Ciudad -> Bool
+buscarOrigen (agencia, visitado) objetivo
+    | elem objetivo (conseguirDestinos agencia (ciudadDeEstadia visitado)) == True = True
+    | (conseguirDestinos agencia objetivo) == [] = False
+    | otherwise = buscarOrigen (eliminarBucle objetivo (viajar (agencia, visitado))) objetivo
+
+puedoVolverAOrigen :: AgenciaDeViajes -> Ciudad -> Bool
+puedoVolverAOrigen agencia origen = buscarOrigen (agencia, [origen]) origen
 

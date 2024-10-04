@@ -2,7 +2,7 @@ import Test.HUnit
 import Funciones
 
 run = runTestTT testGeneral
-testGeneral = validezDuracionDelCaminoMasRapido
+testGeneral = validezPuedoVolverAOrigen
 
 -- EJERCICIO 1: vuelosValidos ---------------------
 
@@ -62,9 +62,9 @@ validezDuracionDelCaminoMasRapido = test [
 
 
 -- EJERCICIO 7: puedoVolverAOrigen -------------------
--- validezPuedoVolverAOrigen = test [
---     "varias conexiones, y unica ruta" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "cordoba", 6), ("cordoba", "formosa", 6), ("formosa", "chubut", 3), ("chubut", "salta", 4)] "salta" ~?= True,
---     "varias conexiones, y varias rutas" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "salta", 6), ("salta", "formosa", 6), ("formosa", "chubut", 3), ("chubut", "salta", 4)] "salta" ~?= True,
---     "ninguna conexión" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("formosa", "salta", 6), ("cordoba", "formosa", 6), ("catamarca", "chubut", 3), ("chubut", "formosa", 4)] "salta" ~?= False,
---     "ruta directa" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "salta", 6), ("cordoba", "formosa", 6), ("catamarca", "chubut", 3), ("chubut", "formosa", 4)] "salta" ~?= True
---  ]
+validezPuedoVolverAOrigen = test [
+    "varias conexiones, y unica ruta" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "cordoba", 6), ("cordoba", "formosa", 6), ("formosa", "chubut", 3), ("chubut", "salta", 4)] "salta" ~?= True,
+    "varias conexiones, y varias rutas" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "salta", 6), ("salta", "formosa", 6), ("formosa", "chubut", 3), ("chubut", "salta", 4)] "salta" ~?= True,
+    "ninguna conexión" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("formosa", "salta", 6), ("cordoba", "formosa", 6), ("catamarca", "chubut", 3), ("chubut", "formosa", 4)] "salta" ~?= False,
+    "ruta directa" ~: puedoVolverAOrigen [("salta", "mendoza", 1), ("mendoza", "salta", 6), ("cordoba", "formosa", 6), ("catamarca", "chubut", 3), ("chubut", "formosa", 4)] "salta" ~?= True
+ ]
