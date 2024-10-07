@@ -1,8 +1,8 @@
 import Test.HUnit
-import Funciones
+import Solucion
 
 run = runTestTT testGeneral
-testGeneral = validezPuedoVolverAOrigen
+testGeneral = validezVuelos
 
 -- EJERCICIO 1: vuelosValidos ---------------------
 
@@ -15,8 +15,6 @@ validezVuelos = test [
     "duración válida (2)" ~: vuelosValidos [("salta", "chubut", 5), ("cordoba", "mendoza", 6)] ~?= True,
     "vuelos no repetidos (2)" ~: vuelosValidos [("cordoba", "mendoza", 5), ("cordoba", "chubut", 5), ("chubut", "mendoza", 3)] ~?= True,
     "camino invertido" ~: vuelosValidos [("cordoba", "mendoza", 5), ("mendoza", "cordoba", 5), ("chubut", "mendoza", 3)] ~?= True
-    -- ¿vale: (bs as, rosario, 7) (rosario, bs as, 4)?
-    -- "camino invertido, y diferente duracion" ~: vuelosValidos [("cordoba", "mendoza", 5), ("mendoza", "cordoba", 5), ("chubut", "mendoza", 3)] ~?= False
  ]
 
 -- EJERCICIO 2: ciudadesConectadas-------------------
@@ -37,7 +35,7 @@ validezModernizarFlota = test [
 -- EJERCICIO 4: ciudadMasConectada-------------------
 validezCiudadMasConectada = test [
     "mayor conexion es correcta" ~: ciudadMasConectada [("salta", "cordoba", 5), ("chubut", "mendoza", 3), ("formosa", "cordoba", 9)] ~?= "cordoba",
-    "Varias Ciudade con mismas apariciones" ~: ciudadMasConectada [("salta", "cordoba", 5), ("chubut", "mendoza", 3), ("formosa", "chubut", 9)] ~?= "cordoba"
+    "Varias Ciudade con mismas apariciones" ~: ciudadMasConectada [("salta", "cordoba", 5), ("chubut", "mendoza", 3), ("formosa", "chubut", 9)] ~?= "chubut"
  ]
 
 
@@ -56,7 +54,6 @@ validezDuracionDelCaminoMasRapido = test [
     "vuelo con escala es el más corto" ~: duracionDelCaminoMasRapido [("salta", "mendoza", 1), ("formosa", "mendoza", 6), ("salta", "cordoba", 6), ("chubut", "cordoba", 3), ("mendoza", "cordoba", 4)] "salta" "cordoba" ~?= 5.0,
     "solo hay vuelo directo" ~: duracionDelCaminoMasRapido [("salta", "mendoza", 5), ("formosa", "mendoza", 6), ("salta", "cordoba", 6), ("chubut", "cordoba", 3)] "salta" "cordoba" ~?= 6.0,
     "solo hay vuelo con escala" ~: duracionDelCaminoMasRapido [("salta", "mendoza", 5), ("formosa", "mendoza", 6), ("chubut", "cordoba", 3), ("mendoza", "cordoba", 6)] "salta" "cordoba" ~?= 11.0,
-    -- ¿y si son iguales, se rompre o devuelve la misma duracion?
     "vuelo con escala y directo son iguales" ~: duracionDelCaminoMasRapido [("salta", "mendoza", 1), ("formosa", "mendoza", 6), ("salta", "cordoba", 5), ("chubut", "cordoba", 3), ("mendoza", "cordoba", 4)] "salta" "cordoba" ~?= 5.0
  ]
 

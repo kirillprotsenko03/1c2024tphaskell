@@ -1,4 +1,4 @@
-module Funciones where
+module Solucion where
 
 
 type Ciudad = String
